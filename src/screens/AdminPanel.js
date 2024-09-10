@@ -19,9 +19,15 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 const teachers = [
-	{ name: 'Teacher 1' },
-	{ name: 'Teacher 2' },
-	{ name: 'Teacher 3' },
+	{ name: 'Sujit Dutta' },
+	{ name: 'Tarun Kumar Biswas' },
+	{ name: 'Sonu Yadav' },
+	{ name: 'Rabi Urang' },
+	{ name: 'Vinod Kumar' },
+	{ name: 'Leena Hatkar' },
+	{ name: 'Neeta Thakre' },
+	{ name: 'Manisha' }
+
 ];
 function AdminPanel() {
 	const [dialogOpen, setDialogOpen] = useState(false);
