@@ -27,7 +27,6 @@ const teachers = [
 	{ name: 'Leena Hatkar' },
 	{ name: 'Neeta Thakre' },
 	{ name: 'Manisha' }
-
 ];
 function AdminPanel() {
 	const [dialogOpen, setDialogOpen] = useState(false);
