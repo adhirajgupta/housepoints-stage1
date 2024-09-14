@@ -1,5 +1,5 @@
-import { getFirestore, collection, getDocs, addDoc, doc,getDoc } from 'firebase/firestore';
-import {app} from '../config'
+import { getFirestore, collection, getDocs, addDoc, doc, getDoc,deleteDoc } from 'firebase/firestore';
+import { app } from '../config'
 // Initialize Firestore
 const db = getFirestore(app);
 
@@ -25,7 +25,7 @@ async function getEventPoints(event) {
   try {
     const eventDocRef = doc(db, 'Event_Points', event);
     const eventDocSnapshot = await getDoc(eventDocRef);
-    
+
     if (eventDocSnapshot.exists()) {
       const eventPoints = [
         eventDocSnapshot.data().first,
@@ -58,46 +58,66 @@ async function createDocument(collectionName, data) {
 }
 
 export async function addPoints(event, teacher, date, house, place, customPoints) {
-    if (customPoints) {
-        try {
-            // Create document with custom points
-            await createDocument(house, {
-                event: event,
-                teacher: teacher,
-                date: date.toISOString(), // Convert date to ISO string
-                place: place,
-                customPoints: parseInt(customPoints) // Convert custom points to integer
-            });
-        } catch (error) {
-            console.error('Error adding custom points:', error);
-            throw error;
-        }
-    } else {
-        try {
-            // Fetch event points
-            const eventPoints = await getEventPoints(event);
-            console.log(eventPoints);
-
-            // Check if event points are retrieved successfully
-            if (eventPoints) {
-                // Get the points for the specified place
-                const points = eventPoints[parseInt(place) - 1];
-                console.log(points);
-
-                // Create document with the retrieved data
-                await createDocument(house, {
-                    event: event,
-                    teacher: teacher,
-                    date: date.toISOString(), // Convert date to ISO string
-                    place: place,
-                    points: parseInt(points)
-                });
-            } else {
-                console.log('Failed to retrieve event points.');
-            }
-        } catch (error) {
-            console.error('Error adding points:', error);
-            throw error;
-        }
+  if (customPoints) {
+    try {
+      // Create document with custom points
+      await createDocument(house, {
+        event: event,
+        teacher: teacher,
+        date: date.toISOString(), // Convert date to ISO string
+        place: place,
+        customPoints: parseInt(customPoints) // Convert custom points to integer
+      });
+    } catch (error) {
+      console.error('Error adding custom points:', error);
+      throw error;
     }
+  } else {
+    try {
+      // Fetch event points
+      const eventPoints = await getEventPoints(event);
+      console.log(eventPoints);
+
+      // Check if event points are retrieved successfully
+      if (eventPoints) {
+        // Get the points for the specified place
+        const points = eventPoints[parseInt(place) - 1];
+        console.log(points);
+
+        // Create document with the retrieved data
+        await createDocument(house, {
+          event: event,
+          teacher: teacher,
+          date: date.toISOString(), // Convert date to ISO string
+          place: place,
+          points: parseInt(points)
+        });
+      } else {
+        console.log('Failed to retrieve event points.');
+      }
+    } catch (error) {
+      console.error('Error adding points:', error);
+      throw error;
+    }
+  }
+}
+
+export const deleteAllDocuments = async (collectionName) => {
+  try {
+    // Get all documents in the collection
+    const querySnapshot = await getDocs(collection(db,"Voyagers"));
+
+    // Delete each document
+    const deletePromises = [];
+    querySnapshot.forEach((doc) => {
+      deletePromises.push(deleteDoc(doc.ref));
+    });
+
+    // Wait for all delete operations to complete
+    await Promise.all(deletePromises);
+
+    console.log('All documents deleted successfully.');
+  } catch (error) {
+    console.error('Error deleting documents:', error);
+  }
 }

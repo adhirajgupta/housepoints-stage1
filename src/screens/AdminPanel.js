@@ -12,7 +12,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MenuItem, Switch } from '@mui/material';
-import { addPoints, getAllEvents } from './firebaseFunctions';
+import { addPoints, deleteAllDocuments, getAllEvents } from './firebaseFunctions';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -64,6 +64,7 @@ function AdminPanel() {
 			}
 		}
 		fetchData();
+		// deleteAllDocuments()
 	}, []);
 
 	const handleDialogOpen = () => {
