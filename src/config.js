@@ -1,6 +1,5 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 
 // Your web app's Firebase configuration using environment variables
 const firebaseConfig = {
@@ -10,15 +9,18 @@ const firebaseConfig = {
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
+
+console.log(firebaseConfig)
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+console.log("api",process.env.REACT_APP_FIREBASE_API_KEY)
+
 // Optional: Only initialize Analytics if it exists
-if (firebaseConfig.measurementId) {
-  const analytics = getAnalytics(app);
-}
+// if (firebaseConfig.measurementId) {
+//   const analytics = getAnalytics(app);
+// }
 
 export { app };

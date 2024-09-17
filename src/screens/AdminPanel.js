@@ -18,6 +18,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+
 const teachers = [
 	{ name: 'Sujit Dutta' },
 	{ name: 'Tarun Kumar Biswas' },
@@ -28,6 +29,10 @@ const teachers = [
 	{ name: 'Neeta Thakre' },
 	{ name: 'Manisha' }
 ];
+
+const divisions = ['A', 'B', 'C', 'D','Grade 9-12','Grade 6-9']; // Division options
+const genders = ['Boys', 'Girls',"Mixed"]; // Gender options
+
 function AdminPanel() {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [dialogContent, setDialogContent] = useState('');
@@ -44,13 +49,17 @@ function AdminPanel() {
 		Explorers: null,
 		Voyagers: null,
 		Pioneers: null
-	}); // State to store positions for each house
+	});
 	const [houseCustomPoints, setHouseCustomPoints] = useState({
 		Discoverers: '',
 		Explorers: '',
 		Voyagers: '',
 		Pioneers: ''
-	}); // State to store custom points for each house
+	});
+
+	// New states for Division and Gender
+	const [selectedDivision, setSelectedDivision] = useState(null);
+	const [selectedGender, setSelectedGender] = useState(null);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -63,61 +72,70 @@ function AdminPanel() {
 			}
 		}
 		fetchData();
-		// deleteAllDocuments()
 	}, []);
 
 	const handleDialogOpen = () => {
 		setDialogOpen(true);
 		setDialogContent(`Event: ${selectedEvent?.label}\nTeacher: ${selectedTeacher?.name}\nDate: ${selectedDate?.toISOString()}
-${["Discoverers", "Explorers", "Voyagers", "Pioneers"]
+				${["Discoverers", "Explorers", "Voyagers", "Pioneers"]
 				.map(val => `${val}: ${customPoints ? houseCustomPoints[val] : housePositions[val]}`)
 				.join('\n')}`);
 
 	};
 
-	const handleDialogClose = async () => {
-		setDialogOpen(false);
-		try {
-			await addPoints(
-				selectedEvent?.value,
-				selectedTeacher?.name,
-				selectedDate,
-				"Discoverers", // Currently hardcoded, you can make it dynamic if needed
-				housePositions["Discoverers"], // Get position from state
-				customPoints ? houseCustomPoints["Discoverers"] : false // Get custom points from state if custom points are enabled
-			);
-			await addPoints(
-				selectedEvent?.value,
-				selectedTeacher?.name,
-				selectedDate,
-				"Voyagers", // Currently hardcoded, you can make it dynamic if needed
-				housePositions["Voyagers"], // Get position from state
-				customPoints ? houseCustomPoints["Voyagers"] : false // Get custom points from state if custom points are enabled
-			);
-			await addPoints(
-				selectedEvent?.value,
-				selectedTeacher?.name,
-				selectedDate,
-				"Explorers", // Currently hardcoded, you can make it dynamic if needed
-				housePositions["Explorers"], // Get position from state
-				customPoints ? houseCustomPoints["Explorers"] : false // Get custom points from state if custom points are enabled
-			);
-			await addPoints(
-				selectedEvent?.value,
-				selectedTeacher?.name,
-				selectedDate,
-				"Pioneers", // Currently hardcoded, you can make it dynamic if needed
-				housePositions["Pioneers"], // Get position from state
-				customPoints ? houseCustomPoints["Pioneers"] : false // Get custom points from state if custom points are enabled
-			);
-			// Display success message
-			alert("Points added successfully!");
-		} catch (error) {
-			// Display error message
-			alert("Failed to add points: " + error.message);
-			console.error('Error adding points:', error);
-		}
-	};
+const handleDialogClose = async () => {
+  setDialogOpen(false);
+  try {
+    // Add points for each house
+    await addPoints(
+      selectedEvent?.value,
+      selectedTeacher?.name,
+      selectedDate,
+      "Discoverers",
+      housePositions["Discoverers"],
+      customPoints ? houseCustomPoints["Discoverers"] : false,
+      selectedDivision, // Pass division
+      selectedGender // Pass gender
+    );
+    await addPoints(
+      selectedEvent?.value,
+      selectedTeacher?.name,
+      selectedDate,
+      "Voyagers",
+      housePositions["Voyagers"],
+      customPoints ? houseCustomPoints["Voyagers"] : false,
+      selectedDivision, // Pass division
+      selectedGender // Pass gender
+    );
+    await addPoints(
+      selectedEvent?.value,
+      selectedTeacher?.name,
+      selectedDate,
+      "Explorers",
+      housePositions["Explorers"],
+      customPoints ? houseCustomPoints["Explorers"] : false,
+      selectedDivision, // Pass division
+      selectedGender // Pass gender
+    );
+    await addPoints(
+      selectedEvent?.value,
+      selectedTeacher?.name,
+      selectedDate,
+      "Pioneers",
+      housePositions["Pioneers"],
+      customPoints ? houseCustomPoints["Pioneers"] : false,
+      selectedDivision, // Pass division
+      selectedGender // Pass gender
+    );
+    // Display success message
+    alert("Points added successfully!");
+  } catch (error) {
+    // Display error message
+    alert("Failed to add points: " + error.message);
+    console.error('Error adding points:', error);
+  }
+};
+
 
 
 	const handlePerformAction = () => {
@@ -148,6 +166,15 @@ ${["Discoverers", "Explorers", "Voyagers", "Pioneers"]
 		setSelectedEvent(newValue);
 	};
 
+	const handleDivisionChange = (event, newValue) => {
+		setSelectedDivision(newValue);
+	};
+
+	const handleGenderChange = (event, newValue) => {
+		setSelectedGender(newValue);
+	};
+
+
 	const handleHousePositionChange = (event, house) => {
 		const newPosition = event.target.value;
 		setHousePositions(prevState => ({
@@ -173,6 +200,7 @@ ${["Discoverers", "Explorers", "Voyagers", "Pioneers"]
 			</Typography>
 
 			<Autocomplete
+			id='Event-dropdown'
 				options={[...events, { label: eventValue, value: eventValue }]}
 				getOptionLabel={(option) => option.label}
 				value={selectedEvent}
@@ -181,6 +209,29 @@ ${["Discoverers", "Explorers", "Voyagers", "Pioneers"]
 				renderInput={(params) => <TextField {...params} label="Events" />}
 				sx={{ mt: 2 }}
 			/>
+
+			{/* New Autocomplete for Division */}
+			<Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}>
+				<Autocomplete
+					options={divisions}
+					getOptionLabel={(option) => option}
+					value={selectedDivision}
+					onChange={handleDivisionChange}
+					renderInput={(params) => <TextField {...params} label="Division" />}
+					sx={{ mt: 2, width: '49%', mr: 1 }}
+
+				/>
+
+				{/* New Autocomplete for Gender */}
+				<Autocomplete
+					options={genders}
+					getOptionLabel={(option) => option}
+					value={selectedGender}
+					onChange={handleGenderChange}
+					renderInput={(params) => <TextField {...params} label="Gender" />}
+					sx={{ mt: 2, width: '49%', ml: 1 }}
+				/>
+			</Box>
 
 			<Autocomplete
 				options={teachers}
@@ -250,7 +301,7 @@ ${["Discoverers", "Explorers", "Voyagers", "Pioneers"]
 					variant="contained"
 					onClick={handlePerformAction}
 				>
-					Perform Action
+					Add Points
 				</Button>
 			</Box>
 

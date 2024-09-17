@@ -56,8 +56,7 @@ async function createDocument(collectionName, data) {
     throw error;
   }
 }
-
-export async function addPoints(event, teacher, date, house, place, customPoints) {
+export async function addPoints(event, teacher, date, house, place, customPoints, division, gender) {
   if (customPoints) {
     try {
       // Create document with custom points
@@ -66,7 +65,9 @@ export async function addPoints(event, teacher, date, house, place, customPoints
         teacher: teacher,
         date: date.toISOString(), // Convert date to ISO string
         place: place,
-        customPoints: parseInt(customPoints) // Convert custom points to integer
+        customPoints: parseInt(customPoints), // Convert custom points to integer
+        division: division, // Add division
+        gender: gender // Add gender
       });
     } catch (error) {
       console.error('Error adding custom points:', error);
@@ -90,7 +91,9 @@ export async function addPoints(event, teacher, date, house, place, customPoints
           teacher: teacher,
           date: date.toISOString(), // Convert date to ISO string
           place: place,
-          points: parseInt(points)
+          points: parseInt(points),
+          division: division, // Add division
+          gender: gender // Add gender
         });
       } else {
         console.log('Failed to retrieve event points.');
@@ -101,6 +104,7 @@ export async function addPoints(event, teacher, date, house, place, customPoints
     }
   }
 }
+
 
 export const deleteAllDocuments = async (collectionName) => {
   try {
