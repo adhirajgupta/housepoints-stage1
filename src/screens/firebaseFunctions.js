@@ -1,6 +1,9 @@
-import { getFirestore, collection, getDocs, addDoc, doc, getDoc,deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, addDoc, doc, getDoc, deleteDoc, setDoc, } from 'firebase/firestore';
 import { app } from '../config'
+import { getStorage, ref, uploadBytes } from 'firebase/storage';
+import { readExcelFile } from './readExcel';
 // Initialize Firestore
+const storage = getStorage();
 const db = getFirestore(app);
 
 // Function to get all documents from the "Event_Points" collection
@@ -109,7 +112,7 @@ export async function addPoints(event, teacher, date, house, place, customPoints
 export const deleteAllDocuments = async (collectionName) => {
   try {
     // Get all documents in the collection
-    const querySnapshot = await getDocs(collection(db,"Voyagers"));
+    const querySnapshot = await getDocs(collection(db, "Voyagers"));
 
     // Delete each document
     const deletePromises = [];
@@ -125,3 +128,21 @@ export const deleteAllDocuments = async (collectionName) => {
     console.error('Error deleting documents:', error);
   }
 }
+
+
+
+export const uploadExcelDataToFirestore = async (explorers, discoverers, voyagers, pioneers) => {
+    const currentDateTime = new Date().toISOString().replace(/:/g, "-").split(".")[0];
+
+  try {
+    await setDoc(doc(db, "FileData", currentDateTime), {
+      Explorers: explorers,
+      Discoverers: discoverers,
+      Voyagers: voyagers,
+      Pioneers: pioneers,
+    });
+    console.log("Data uploaded to Firestore successfully!");
+  } catch (error) {
+    console.error("Error uploading data to Firestore: ", error);
+  }
+};
