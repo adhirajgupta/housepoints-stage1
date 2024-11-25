@@ -11,25 +11,61 @@ export const readExcelFile = (file) => {
         const workbook = XLSX.read(data, { type: "array" });
 
         // Select the first sheet
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const explorersSheet1 = firstSheet["J4"] ? firstSheet["J4"].v : null;
+        const discoverersSheet1 = firstSheet["K4"] ? firstSheet["K4"].v : null;
+        const voyagersSheet1 = firstSheet["L4"] ? firstSheet["L4"].v : null;
+        const pioneersSheet1 = firstSheet["M4"] ? firstSheet["M4"].v : null;
 
-        // Extract the value from specific cells
-        const explorers = worksheet["J4"] ? worksheet["J4"].v : null;
-        const discoverers = worksheet["K4"] ? worksheet["K4"].v : null;
-        const voyagers = worksheet["L4"] ? worksheet["L4"].v : null;
-        const pioneers = worksheet["M4"] ? worksheet["M4"].v : null;
+        if (
+          explorersSheet1 === null ||
+          discoverersSheet1 === null ||
+          voyagersSheet1 === null ||
+          pioneersSheet1 === null
+        ) {
+          reject("One or more cells are empty in the first sheet. Please check the Excel file.");
+          return;
+        }
 
-        // Check if all the required fields have data
-        if (explorers === null || discoverers === null || voyagers === null || pioneers === null) {
-          reject("One or more cells are empty. Please check the Excel file.");
+        // Select the second sheet
+        const secondSheet = workbook.Sheets[workbook.SheetNames[1]];
+        if (!secondSheet) {
+          reject("The second sheet is missing in the Excel file.");
+          return;
+        }
+
+        const explorersSheet2 = secondSheet["J4"] ? secondSheet["J4"].v : null;
+        const discoverersSheet2 = secondSheet["K4"] ? secondSheet["K4"].v : null;
+        const voyagersSheet2 = secondSheet["L4"] ? secondSheet["L4"].v : null;
+        const pioneersSheet2 = secondSheet["M4"] ? secondSheet["M4"].v : null;
+
+        if (
+          explorersSheet2 === null ||
+          discoverersSheet2 === null ||
+          voyagersSheet2 === null ||
+          pioneersSheet2 === null
+        ) {
+          reject("One or more cells are empty in the second sheet. Please check the Excel file.");
           return;
         }
 
         // Call the function to upload data to Firestore
-        uploadExcelDataToFirestore(explorers, discoverers, voyagers, pioneers)
+        uploadExcelDataToFirestore(
+          {
+            explorers: explorersSheet1,
+            discoverers: discoverersSheet1,
+            voyagers: voyagersSheet1,
+            pioneers: pioneersSheet1,
+          },
+          {
+            explorers: explorersSheet2,
+            discoverers: discoverersSheet2,
+            voyagers: voyagersSheet2,
+            pioneers: pioneersSheet2,
+          }
+        )
           .then(() => {
-            console.log("Data uploaded successfully from readExcelFile!");
-            resolve("Data uploaded successfully!");
+            resolve("Data uploaded successfully from both sheets!");
           })
           .catch((error) => {
             reject("Error uploading data to Firestore: " + error.message);

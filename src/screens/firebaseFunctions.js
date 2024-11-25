@@ -131,18 +131,43 @@ export const deleteAllDocuments = async (collectionName) => {
 
 
 
-export const uploadExcelDataToFirestore = async (explorers, discoverers, voyagers, pioneers) => {
-    const currentDateTime = new Date().toISOString().replace(/:/g, "-").split(".")[0];
+export const uploadExcelDataToFirestore = async (sheet1Data, sheet2Data) => {
+  // const currentDateTime = new Date().toISOString().replace(/:/g, "-").split(".")[0];
+
+  let b = new Date().toISOString().split('T')
+  const currentDateTime = b[0] + "T" + b[1].replace('/', ':')
+
+
+  // Sum up the points
+  const summedData = {
+    explorers: sheet1Data.explorers + sheet2Data.explorers,
+    discoverers: sheet1Data.discoverers + sheet2Data.discoverers,
+    voyagers: sheet1Data.voyagers + sheet2Data.voyagers,
+    pioneers: sheet1Data.pioneers + sheet2Data.pioneers,
+  };
 
   try {
     await setDoc(doc(db, "FileData", currentDateTime), {
-      Explorers: explorers,
-      Discoverers: discoverers,
-      Voyagers: voyagers,
-      Pioneers: pioneers,
+      // Summed-up points
+      Explorers: summedData.explorers,
+      Discoverers: summedData.discoverers,
+      Voyagers: summedData.voyagers,
+      Pioneers: summedData.pioneers,
+
+      // Individual points
+      ExplorersSports: sheet1Data.explorers,
+      DiscoverersSports: sheet1Data.discoverers,
+      VoyagersSports: sheet1Data.voyagers,
+      PioneersSports: sheet1Data.pioneers,
+
+      ExplorersCultural: sheet2Data.explorers,
+      DiscoverersCultural: sheet2Data.discoverers,
+      VoyagersCultural: sheet2Data.voyagers,
+      PioneersCultural: sheet2Data.pioneers,
     });
     console.log("Data uploaded to Firestore successfully!");
   } catch (error) {
     console.error("Error uploading data to Firestore: ", error);
+    throw error;
   }
 };
