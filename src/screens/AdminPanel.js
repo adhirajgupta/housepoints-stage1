@@ -71,7 +71,11 @@ function AdminPanel() {
 				console.error('Error fetching events:', error);
 			}
 		}
-		fetchData();
+	// deleteAllDocuments("Explorers")
+	// 	deleteAllDocuments("Pioneers")
+	// deleteAllDocuments("Voyagers")
+	// deleteAllDocuments("Discoverers")
+
 	}, []);
 
 	const handleDialogOpen = () => {
